@@ -13,3 +13,5 @@ html files:
 
 [log-reg-exercise](http://htmlpreview.github.io/?https://github.com/berfinas/r-homework/blob/main/log-reg-exercise.html)
 
+[data-analysis-exercise](https://github.com/berfinas/r-homework/blob/main/data-analysis-exercise.html)
+
