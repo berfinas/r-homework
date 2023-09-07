@@ -11,3 +11,5 @@ html files:
 
 [r4ds-data-transformation-chapter5homework](http://htmlpreview.github.io/?https://github.com/berfinas/r-homework/blob/main/r4ds-data-transformation-chapter5homework.html)
 
+[log-reg-exercise](http://htmlpreview.github.io/?https://github.com/berfinas/r-homework/blob/main/log-reg-exercise.html)
+
