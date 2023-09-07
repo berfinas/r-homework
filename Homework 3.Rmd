@@ -1,0 +1,205 @@
+---
+title: "Homework 3"
+author: "Berfin Aş"
+date: "06 03 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(magrittr)
+library(tidyverse)
+library(ISLR2)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 8
+
+This question involves the use of simple linear regression on the Auto
+data set.
+
+```{r}
+data("Auto")
+head(Auto)
+```
+
+
+```{r}
+auto <- read_csv("https://www.statlearning.com/s/Auto.csv")
+```
+## (a) Use the lm() function to perform a simple linear regression with mpg as the response and horsepower as the predictor. Use the summary() function to print the results.
+
+```{r}
+res_auto <- lm(mpg ~ horsepower, data = Auto)
+summary(res_auto)
+```
+
+There is a relationship between the predictor and response since the P-value is less than 0.05 and we reject the null hypothesis. R-squared value shows that the predictor's effect on the response is almost 61% and the relationship between mpg and the horsepower is negative.The negative relationship can also be seen in the plot below.
+
+```{r}
+plot(Auto$mpg, Auto$horsepower)
+```
+
+The confidence interval is;
+
+```{r}
+predict(res_auto, data.frame(horsepower = 98), interval = "confidence")
+```
+
+The prediction interval is;
+```{r}
+predict(res_auto, data.frame(horsepower = 98), interval = "prediction") 
+```
+## (b) Plot the response and the predictor. Use the abline() function to display the least squares regression line.
+
+```{r}
+plot(Auto$mp ~ Auto$horsepower, main =" mpg vs horsepower", xlab = " horsepower", ylab ="mpg", col = "blue")
+abline(res_auto, col ="red")
+```
+
+## (c) Use the plot() function to produce diagnostic plots of the least squares regression fit. Comment on any problems you see with the fit.
+
+```{r}
+plot(res_auto)
+```
+There is a non linear relationship between the residuals and the fitted values. The second plot indicates that the residuals are normally distributed. 
+
+# Question 9
+
+This question involves the use of multiple linear regression on the
+Auto data set.
+
+## (a) Produce a scatterplot matrix which includes all of the variables in the data set.
+
+```{r}
+plot(Auto)
+```
+
+## (b) Compute the matrix of correlations between the variables using the function cor(). You will need to exclude the name variable, which is qualitative.
+
+```{r}
+view(Auto)
+```
+
+Name is qualitative. Other columns are quantitative.
+
+```{r}
+cor(Auto[1:8])
+```
+
+## (c) Use the lm() function to perform a multiple linear regression with mpg as the response and all other variables except name as the predictors. Use the summary() function to print the results. Comment on the output.
+
+```{r}
+res_auto <- lm(mpg ~. -name  , data=Auto)
+summary(res_auto)
+```
+
+There is a relationship between the predictors and the response. 
+Displacement, year, weight and origin appear to have a statistically significant relationship to the response (P-value < 0.05).
+The coefficient for the year variable suggests that there is a positive relationship between year and mpg given that other predictors are constant.
+
+## (d) Use the plot() function to produce diagnostic plots of the linear regression fit. Comment on any problems you see with the fit. Do the residual plots suggest any unusually large outliers? Does the leverage plot identify any observations with unusually high leverage?
+
+```{r}
+plot(res_auto)
+```
+
+In the first graph, it shows that there is a non-linear relationship between the response and the predictors.
+The second graph indicates that the residuals are normally distributed.
+For the third graph, it can be said that the constant variance of error assumption is not true for this model.
+
+## (e) Use the * and : symbols to fit linear regression models with interaction effects. Do any interactions appear to be statistically significant?
+
+```{r}
+res_auto3 <- lm(mpg ~ displacement*acceleration + horsepower*acceleration, data = Auto)
+summary(res_auto3)
+
+```
+
+According to this model, it can be said that the interaction between acceleration and horsepower is statistically significant, while the interaction between displacement and acceleration is not significant by looking at their p-values.
+
+## (f) Try a few different transformations of the variables, such as log(X), √X, X2. Comment on your findings.
+
+```{r}
+res_auto3 = lm(mpg~log(weight)+sqrt(horsepower)+acceleration+I(acceleration^2), data = Auto)
+summary(res_auto3)
+```
+
+It can be said that log(weight), sqrt(horsepower), acceleration and I(acceleration^2) have statistically significant effect on mpg.
+
+# Question 10 
+
+This question should be answered using the Carseats data set.
+
+```{r}
+data("Carseats")
+head(Carseats)
+```
+
+## (a) Fit a multiple regression model to predict Sales using Price, Urban, and US.
+
+```{r}
+res_carseats <- lm(Sales ~ Price + Urban + US, data = Carseats)
+summary(res_carseats)
+```
+
+## (b) Provide an interpretation of each coefficient in the model. Be careful—some of the variables in the model are qualitative!
+
+```{r}
+view(Carseats)
+```
+
+Urban and US are qualitative. 
+
+By looking at the P-values, it can be said that Price and $US_{Yes}$ (indicates that the store is in the US) have statistically significant effects on Sales. 
+
+There is a negative relationship between Price and Sales. This means that if the prices go up, sales go down. 
+
+There is a positive relationship between $US_{Yes}$ and Sales. This means that sales are higher in the US than other places.
+
+## (c) Write out the model in equation form, being careful to handle the qualitative variables properly.
+
+```{r}
+coefs <- round(coef(res_carseats), digits = 2)
+```
+
+$$
+Sales = \beta_{0} + \beta_{1}*Price + \beta_{2}*Urban_{Yes} + \beta_{3}*US_{Yes} + \varepsilon
+$$
+
+$$
+Sales = 13.04 - 0.05*Price - 0.02*Urban_{Yes} + 1.2*US_{Yes}
+$$
+
+## (d) For which of the predictors can you reject the null hypothesis H0 : βj = 0?
+
+```{r}
+summary(res_carseats)
+```
+
+We reject the null hypothesis when the P-value is less than 0.05. In this case, we reject the null hypothesis for Price and $US_{Yes}$ predictors.
+
+## (e) On the basis of your response to the previous question, fit a smaller model that only uses the predictors for which there is evidence of association with the outcome.
+
+Since Price and $US_{Yes}$ have an effect on the outcome, I chose them.
+
+```{r}
+res_carseats2 <- lm(Sales ~ Price + US, data = Carseats)
+summary(res_carseats2)
+```
+
+## (f) How well do the models in (a) and (e) fit the data?
+
+## (g) Using the model from (e), obtain 95% confidence intervals for the coefficient(s).
+
+The confidence interval is;
+
+```{r}
+confint(res_carseats2, level = 0.95)
+```
+
+## (h) Is there evidence of outliers or high leverage observations in the model from (e)?
+
+```{r}
+plot(res_carseats2)
+```
+According to the third graph, there is no evidence of outliers or high leverage observations in the model from part (e).
