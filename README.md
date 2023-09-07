@@ -5,3 +5,7 @@ r4ds - data transformation chapter5 homework questions are from [here](https://r
 
 homework5 is from ISLR 2e section 4 exercise 6 (p. 191),  exercise 9 (p.192),  exercise 13 a-d, and j.
 
+html files:
+
+[linear-reg-auto-dataset](file:///C:/Users/bberf/Desktop/dersler/ie%20451/Homeworks/21702854/Homework-3.html)
+
