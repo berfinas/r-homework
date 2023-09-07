@@ -1,0 +1,342 @@
+---
+title: "Homework2"
+author: "Berfin Aş"
+date: "17 02 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(forcats)
+library(dplyr)
+library(ISLR2)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We’ll use the forcats package, which is part of the core tidyverse. It provides tools for dealing with categorical variables.
+
+## R for Data Science 
+
+Section 15.3.1
+
+```{r}
+view(gss_cat)
+```
+
+
+Question 1: Explore the distribution of rincome (reported income). What makes the default bar chart hard to understand? How could you improve the plot?
+
+```{r}
+gss_cat %>%
+  count(rincome)
+```
+
+```{r}
+ggplot(gss_cat, aes(rincome)) +
+  geom_bar() 
+```
+
+It is impossible to read the labels on the x axis, so we need to adjust the labels. 
+
+```{r}
+ggplot(gss_cat, aes(x=rincome)) +
+  geom_bar() + 
+  theme(axis.text.x = element_text(angle = 90, size = 10))
+```
+
+----------------------------------------
+
+Question 2: What is the most common relig in this survey? What’s the most common partyid?
+
+
+```{r}
+gss_cat %>%
+  count(relig) %>%
+  arrange(desc(n)) %>%
+  head(1)
+
+```
+
+The most common relig is Protestant
+
+```{r}
+gss_cat %>%
+  count(partyid) %>%
+  arrange(desc(n)) %>%
+  head(1)
+```
+
+The most common partyid is Independent
+
+----------------------------------------
+
+Question 3: Which relig does denom (denomination) apply to? How can you find out with a table? How can you find out with a visualization?
+
+```{r}
+ggplot(gss_cat, aes(x = relig, y = denom)) +
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 90, size = 10))
+```
+
+
+## Introduction to Statistical Learning with R, second edition
+
+Section 2.4
+
+Question 8 :
+
+```{r}
+college <- read.csv("College.csv")
+view(college)
+```
+
+... We still need to eliminate the first column in the data where the
+names are stored.
+
+I tried to do this with the function below,
+
+college <- read_csv("https://www.statlearning.com/s/College.csv") %>%
+  select(-1)
+  
+The book's alternative:
+
+```{r}
+rownames(college) <- college[,1]
+view(college)
+```
+
+
+```{r}
+college <- college[, -1]
+view(college)
+```
+
+Use the summary() function to produce a numerical summary of the variables in the data set.
+
+```{r}
+summary(college)
+```
+
+Use the pairs() function to produce a scatterplot matrix of the first ten columns or variables of the data. Recall that you can reference the first ten columns of a matrix A using A[,1:10].
+
+- I got en error saying "Error in pairs.default(college[, 1:10]) : non-numeric argument to 'pairs'". So that's why I used pairs(college[, 2:10]).
+
+```{r}
+pairs(college[, 2:10])
+```
+
+Use the plot() function to produce side-by-side boxplots of Outstate versus Private.
+
+```{r}
+boxplot(college$Outstate ~ college$Private, main = "Outstate versus Private", 
+    xlab = "Private", ylab = "Outstate")
+```
+
+Create a new qualitative variable, called Elite, by binning the Top10perc variable. We are going to divide universities into two groups based on whether or not the proportion of students coming from the top 10% of their high school classes exceeds 50 %.
+
+```{r}
+Elite <- rep("No", nrow(college))
+Elite[college$Top10perc > 50] <- "Yes"
+Elite <- as.factor(Elite)
+college <- data.frame(college , Elite)
+```
+
+Use the summary() function to see how many elite universities there are.
+
+```{r}
+summary(college$Elite)
+```
+
+Now use the plot() function to produce side-by-side boxplots of Outstate versus Elite.
+
+```{r}
+boxplot(college$Outstate ~ college$Elite, main = "Outstate versus Elite", 
+    xlab = "Elite", ylab = "Outstate")
+```
+
+Use the hist() function to produce some histograms with differing numbers of bins for a few of the quantitative variables. You may find the command par(mfrow = c(2, 2)) useful: it will divide the print window into four regions so that four plots can be made simultaneously. Modifying the arguments to this function will divide the screen in other ways.
+
+```{r}
+par(mfrow = c(2, 2))
+hist(college$Top10perc, breaks = 5, main="Histogram of Top10perc")
+hist(college$Top10perc, breaks = 10, main="Histogram of Top10perc")
+hist(college$Top10perc, breaks = 15, main="Histogram of Top10perc")
+hist(college$Top10perc, breaks = 20, main="Histogram of Top10perc")
+```
+
+```{r}
+par(mfrow = c(2, 2))
+hist(college$Top25perc, breaks = 5, main="Histogram of Top25perc")
+hist(college$Top25perc, breaks = 10, main="Histogram of Top25perc")
+hist(college$Top25perc, breaks = 15, main="Histogram of Top25perc")
+hist(college$Top25perc, breaks = 20, main="Histogram of Top25perc")
+```
+```{r}
+par(mfrow = c(2, 2))
+hist(college$PhD, breaks = 5, main="Histogram of PhD")
+hist(college$PhD, breaks = 10, main="Histogram of PhD")
+hist(college$PhD, breaks = 15, main="Histogram of PhD")
+hist(college$PhD, breaks = 20, main="Histogram of PhD")
+```
+
+Continue exploring the data, and provide a brief summary of what you discover.
+
+```{r}
+summary(college$PhD)
+```
+```{r}
+summary(college$F.Undergrad)
+```
+
+```{r}
+summary(college$perc.alumni)
+```
+```{r}
+row.names(college[college$Outstate>20000, ])
+
+```
+Question 9 :
+
+```{r}
+auto <- read.table("Auto.data")
+auto <- read.table("Auto.data",header=TRUE,na.strings ="?")
+auto = na.omit(auto)
+view(auto)
+```
+
+Which of the predictors are quantitative, and which are qualitative?
+
+```{r}
+names(auto)
+?Auto
+```
+Name and origin are qualitative, the rest of the predictors are quantitative.
+
+What is the range of each quantitative predictor? You can answer this using the range() function.
+
+```{r}
+range(auto$mpg)
+```
+```{r}
+range(auto$cylinders)
+```
+```{r}
+range(auto$displacement)
+```
+```{r}
+auto$horsepower <- as.numeric(auto$horsepower )
+t(sapply(auto[,1:7],range))
+```
+What is the mean and standard deviation of each quantitative predictor?
+
+```{r}
+colMeans(auto[, 1:7], na.rm = FALSE)
+```
+```{r}
+sapply(auto[, 1:7], sd)
+```
+Now remove the 10th through 85th observations. What is the range, mean, and standard deviation of each predictor in the subset of the data that remains?
+
+```{r}
+apply(auto[-c(10:85),1:7], 2, range)
+```
+
+```{r}
+apply(auto[-c(10:85),1:7], 2, mean)
+```
+```{r}
+apply(auto[-c(10:85),1:7], 2, sd)
+```
+Using the full data set, investigate the predictors graphically, using scatterplots or other tools of your choice. Create some plots highlighting the relationships among the predictors. 
+
+```{r}
+pairs(Auto[,1:7])
+```
+```{r}
+par(mfrow=c(2,2))
+hist(auto$mpg)
+hist(auto$displacement)
+hist(auto$horsepower)
+hist(auto$weight)
+```
+
+Suppose that we wish to predict gas mileage (mpg) on the basis of the other variables. Do your plots suggest that any of the other variables might be useful in predicting mpg? Justify your answer.
+
+- My answer: Yes. In the plot we obtained by running pairs(Auto[,1:7]) function, we see that variables have positive or negative relations with the mpg result. 
+
+For example year and mpg or acceleration and mpg appear to have a positive relation, while displacement and mpg or weight and mpg appear to have a negative relationship. Therefore, other variables can be useful in predicting mpg.
+
+Question 10:
+
+```{r}
+?Boston
+```
+
+Description: A data set containing housing values in 506 suburbs of Boston.
+
+Format: A data frame with 506 rows and 13 variables.
+
+crim : per capita crime rate by town.
+
+zn : proportion of residential land zoned for lots over 25,000 sq.ft.
+
+indus : proportion of non-retail business acres per town.
+
+chas : Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).
+
+nox : nitrogen oxides concentration (parts per 10 million).
+
+rm : average number of rooms per dwelling.
+
+age : proportion of owner-occupied units built prior to 1940.
+
+dis : weighted mean of distances to five Boston employment centres.
+
+rad : index of accessibility to radial highways.
+
+tax : full-value property-tax rate per $10,000.
+
+ptratio : pupil-teacher ratio by town.
+
+lstat : lower status of the population (percent).
+
+medv : median value of owner-occupied homes in $1000s.
+
+-----------------------------------
+
+Make some pairwise scatterplots of the predictors (columns) in
+this data set.
+
+```{r}
+pairs(Boston)
+```
+
+Are any of the predictors associated with per capita crime rate? If so, explain the relationship.
+
+```{r}
+
+```
+
+Do any of the census tracts of Boston appear to have particularly high crime rates? Tax rates? Pupil-teacher ratios? Comment on the range of each predictor
+
+```{r}
+summary(Boston$crim)
+```
+
+
+```{r}
+summary(Boston$tax)
+```
+
+How many of the census tracts in this data set bound the Charles river?
+
+```{r}
+nrow(subset(Boston, chas ==1)) 
+```
+What is the median pupil-teacher ratio among the towns in this data set? 
+
+```{r}
+summary(Boston$ptratio)
+```
+19 pupils for each teacher
