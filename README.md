@@ -9,3 +9,5 @@ html files:
 
 [linear-reg-auto-dataset](http://htmlpreview.github.io/?https://github.com/berfinas/r-homework/blob/main/linear-reg-auto-dataset.html)
 
+[r4ds-data-transformation-chapter5homework](http://htmlpreview.github.io/?https://github.com/berfinas/r-homework/blob/main/r4ds-data-transformation-chapter5homework.html)
+
