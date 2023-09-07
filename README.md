@@ -7,5 +7,5 @@ homework5 is from ISLR 2e section 4 exercise 6 (p. 191),  exercise 9 (p.192),  e
 
 html files:
 
-[linear-reg-auto-dataset](file:///C:/Users/bberf/Desktop/dersler/ie%20451/Homeworks/21702854/Homework-3.html)
+[linear-reg-auto-dataset](http://htmlpreview.github.io/?https://github.com/berfinas/r-homework/blob/main/linear-reg-auto-dataset.html)
 
