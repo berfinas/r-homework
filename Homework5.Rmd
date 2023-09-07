@@ -1,0 +1,291 @@
+---
+title: "Homework 5"
+author: "Berfin Aş"
+date: "27 03 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ISLR2)
+library(magrittr)
+library(tidyverse)
+library(statmod)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 6
+
+Suppose we collect data for a group of students in a statistics class with variables $X_1$ = hours studied, $X_2$ = undergrad GPA, and Y = receive an A. We fit a logistic regression and produce estimated coefficient, $\hat{\beta}_0$ = −6, $\hat{\beta}_1$ = 0.05, $\hat{\beta}_2$ = 1.
+
+## (a)
+
+Estimate the probability that a student who studies for 40 h and has an undergrad GPA of 3.5 gets an A in the class.
+
+## Answer:
+
+$$
+\hat{p}(X) = \frac{e^{-6+0.05X_1 + X_2}}{1+e^{-6+0.05X_1 + X_2}}
+$$
+
+Plug the values of$X_1$ = hours studied and $X_2$ = undergrad GPA as $X_1$ = 40, $X_2$ = 3.5. We get;
+
+$$
+\hat{p}(X) = \frac{e^{-6+0.05X_1 + X_2}}{1+e^{-6+0.05X_1 + X_2}} = 0.37754
+$$
+
+## (b)
+
+How many hours would the student in part (a) need to study to have a 50% chance of getting an A in the class?
+
+## Answer:
+
+For this question, we need to find the appropriate $X_1$ = hours studied value where the student have a 50% chance of getting an A in the class. We know the $X_2$ = undergrad GPA value, it is the same as part (a).
+
+$$
+\hat{p}(X) = \frac{e^{-6+0.05X_1 + 3.5}}{1+e^{-6+0.05X_1 + 3.5}} = 0.5
+$$
+
+which is equal to
+
+$$
+e^{-6+0.05X_1 + 3.5} = 0.5 * (1+e^{-6+0.05X_1 + 3.5}) \\
+0.5 * e^{-6+0.05X_1 + 3.5} = 0.5  \\
+e^{-6+0.05X_1 + 3.5} = 1
+$$
+
+By solving this equation, we get $X_1$ = 50.
+
+# Exercise 9
+
+This problem has to do with odds.
+
+## (a)
+
+On average, what fraction of people with an odds of 0.37 of defaulting on their credit card payment will in fact default?
+
+## Answer:
+
+$$
+\frac{p(X)}{1 - p(X)} = 0.37 \\
+p(X) = 0.37 * [1 - p(X)] \\
+1.37 * p(X) = 0.37 \\
+p(X) = 0.2700
+$$
+
+On average 27% of people defaulting on their credit card payment. 
+
+## (b)
+
+Suppose that an individual has a 16% chance of defaulting on her credit card payment. What are the odds that she will default?
+
+## Answer:
+
+$$
+p(X) = 0.16 \\
+\frac{p(X)}{1-p(X)} = \frac{0.16}{1-0.16} = \frac{0.16}{0.84} = 0.1904
+$$
+
+An individual with an odds of 19.04% has a 16% chance of defaulting on her credit card payment. Hence, the odds that she will default is 19.04%.
+
+# Exercise 13
+
+This question should be answered using the Weekly data set, which is part of the ISLR2 package. This data is similar in nature to the Smarket data from this chapter’s lab, except that it contains 1, 089 weekly returns for 21 years, from the beginning of 1990 to the end of 2010.
+
+## (a)
+
+Produce some numerical and graphical summaries of the Weekly data. Do there appear to be any patterns?
+
+## Answer:
+
+```{r}
+view(Weekly)
+w <- Weekly
+```
+```{r}
+summary(Weekly)
+```
+
+```{r}
+pairs(Weekly)
+```
+
+Year and volume appear to have a linear relation where as Year increases, Volume increases.  
+
+## (b)
+
+Use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as predictors. Use the summary function to print the results. Do any of the predictors appear to be statistically significant? If so, which ones?
+
+## Answer:
+
+```{r}
+logreg1 <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Weekly, family = binomial)
+summary(logreg1)
+```
+
+Lag2 is statistically significant with a p-value of 0.0296 < $\alpha$ = 0.05, so we reject the null hypothesis. The other variables fail to reject the null hypothesis. 
+
+## (c)
+
+Compute the confusion matrix and overall fraction of correct predictions. Explain what the confusion matrix is telling you about the types of mistakes made by logistic regression.
+
+## Answer: 
+
+```{r}
+logWeekly_probs = predict(logreg1, type = "response")
+logWeekly_pred = rep("Down", length(logWeekly_probs))
+logWeekly_pred[logWeekly_probs > 0.5] = "Up"
+table(logWeekly_pred, Weekly$Direction)
+mean(logWeekly_pred == Weekly$Direction)
+```
+
+The confusion matrix tells us that there are 54 correct predictions when the market had a negative return ("Down") for that week and 557 correct predictions when the market had a positive return ("Up") for that week. 
+
+It appears to be the case that 56.10% of the response are predicted correctly (We can also calculate this fraction as shown below):
+
+$$
+\frac{54 + 557}{54 + 48 + 430 + 557 } = 0.5610652
+$$
+
+The model predicted "Up" weekly trends 92.06% correct.
+
+$$
+\frac{557}{48+557} = 0.9206
+$$ 
+
+However, the model predicted "Down" weekly trends only 11.15% correct.
+
+$$
+\frac{54}{54 + 430} = 0.1115
+$$
+
+## (d)
+
+Now fit the logistic regression model using a training data period from 1990 to 2008, with Lag2 as the only predictor. Compute the confusion matrix and the overall fraction of correct predictions for the held out data (that is, the data from 2009 and 2010).
+
+## Answer:
+
+```{r}
+train <- (Weekly$Year < 2009)
+
+Weekly_train <- Weekly[train,]
+Weekly_test <- Weekly[!train,]
+
+Direction_train <- Weekly_train$Direction
+Direction_test <- Weekly_test$Direction
+
+logreg2 <- glm(Direction ~ Lag2, data = Weekly_train, family = binomial)
+logWeekly_probs = predict(logreg2, Weekly_test, type = "response")
+logWeekly_pred = rep("Down", length(logWeekly_probs))
+logWeekly_pred[logWeekly_probs > 0.5] = "Up"
+
+table(logWeekly_pred, Direction_test)
+mean(logWeekly_pred == Direction_test)
+```
+
+The overall fraction of correct predictions is 62.5%, calculated as;
+
+$$
+\frac{9 + 56}{9 + 5 + 34 + 56} = 0.625
+$$
+
+The model correctly predicts 62.5% of weekly trends.
+
+The model predicted "Up" weekly trends 91.80% correct.
+
+$$
+\frac{56}{56 + 5} = 0.9180
+$$ 
+
+However, the model predicted "Down" weekly trends only 20.93% correct.
+
+$$
+\frac{9}{9 + 34} = 0.2093
+$$
+
+## (j)
+
+Experiment with different combinations of predictors, including possible transformations and interactions, for each of the methods. Report the variables, method, and associated confusion matrix that appears to provide the best results on the held out data. Note that you should also experiment with values for K in the KNN classifier. 
+
+**(with logistic regression only)**
+
+## Answer:
+
+```{r}
+logreg3 <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Volume, data = Weekly, family = binomial)
+summary(logreg3)
+```
+
+```{r}
+logWeekly_probs = predict(logreg3, type = "response")
+logWeekly_pred = rep("Down", length(logWeekly_probs))
+logWeekly_pred[logWeekly_probs > 0.5] = "Up"
+table(logWeekly_pred, Weekly$Direction)
+mean(logWeekly_pred == Weekly$Direction)
+```
+
+The overall fraction of correct predictions is 55.73% for this model. 
+
+Another model (using a training data period from 1990 to 2008 in part (d)):
+
+```{r}
+train <- (Weekly$Year < 2009)
+
+Weekly_train <- Weekly[train,]
+Weekly_test <- Weekly[!train,]
+
+Direction_train <- Weekly_train$Direction
+Direction_test <- Weekly_test$Direction
+
+logreg4 <- glm(Direction ~ Lag1 + Lag2:Lag4, data = Weekly_train, family = binomial)
+logWeekly_probs = predict(logreg4, Weekly_test, type = "response")
+logWeekly_pred = rep("Down", length(logWeekly_probs))
+logWeekly_pred[logWeekly_probs > 0.5] = "Up"
+
+table(logWeekly_pred, Direction_test)
+mean(logWeekly_pred == Direction_test)
+```
+
+The overall fraction of correct predictions is 58.65% for this model which is somewhat better than the previous model. 
+
+Let's try this model with a different year constraint;
+
+```{r}
+train <- (Weekly$Year < 2003)
+
+Weekly_train <- Weekly[train,]
+Weekly_test <- Weekly[!train,]
+
+Direction_train <- Weekly_train$Direction
+Direction_test <- Weekly_test$Direction
+
+logreg5 <- glm(Direction ~ Lag1 + Lag2:Lag4, data = Weekly_train, family = binomial)
+logWeekly_probs = predict(logreg5, Weekly_test, type = "response")
+logWeekly_pred = rep("Down", length(logWeekly_probs))
+logWeekly_pred[logWeekly_probs > 0.5] = "Up"
+
+table(logWeekly_pred, Direction_test)
+mean(logWeekly_pred == Direction_test)
+```
+
+The overall fraction of correct predictions is 57.31% for this model and this is not better than the previous model, let's try to change it.
+
+```{r}
+train <- (Weekly$Year < 2003)
+
+Weekly_train <- Weekly[train,]
+Weekly_test <- Weekly[!train,]
+
+Direction_train <- Weekly_train$Direction
+Direction_test <- Weekly_test$Direction
+
+logreg6 <- glm(Direction ~ Lag3:Lag5 + Lag1 , data = Weekly_train, family = binomial)
+logWeekly_probs = predict(logreg6, Weekly_test, type = "response")
+logWeekly_pred = rep("Down", length(logWeekly_probs))
+logWeekly_pred[logWeekly_probs > 0.5] = "Up"
+
+table(logWeekly_pred, Direction_test)
+mean(logWeekly_pred == Direction_test)
+```
+
+The overall fraction of correct predictions is 56.83% for this model.
+
